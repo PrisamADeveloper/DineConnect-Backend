@@ -1,0 +1,134 @@
+.page-header
+  .btn-toolbar.pull-right
+    .btn-group
+      = link_to restaurants_path, class: 'btn btn-warning' do
+        i.glyphicon.glyphicon-chevron-left
+        = t('button.back')
+      = link_to edit_restaurant_path(@restaurant),
+        class: 'btn btn-warning' do
+        i.glyphicon.glyphicon-edit
+        = t('button.edit')
+
+      - if !@restaurant.active?
+        = link_to activate_restaurant_path(@restaurant), method: :patch,
+          data: { confirm: 'Activate this restaurant?' },
+          class: 'btn btn-info' do
+          span.glyphicon.glyphicon-edit
+          | Activate
+      - else
+        = link_to deactivate_restaurant_path(@restaurant), method: :patch,
+          data: { confirm: 'Deactivate this restaurant?' },
+          class: 'btn btn-danger' do
+          span.glyphicon.glyphicon-edit
+          | Deactivate
+
+      = link_to @restaurant, :method => :delete, :data => { :confirm => 'Are you sure?' },
+        class: 'btn btn-danger' do
+        span.glyphicon.glyphicon-trash
+        = t(:delete)
+  h1
+    = t :show_restaurant
+
+dl.dl-horizontal
+  dt
+    = Restaurant.human_attribute_name('active')
+  dd
+    = @restaurant.active
+
+dl.dl-horizontal
+  dt
+    = Restaurant.human_attribute_name('cover')
+  dd
+    = attachment_image_tag(@restaurant, :cover, :fill, 300, 300, format: "jpg")
+
+dl.dl-horizontal
+  dt
+    = Restaurant.human_attribute_name('name')
+  dd
+    = @restaurant.name
+
+dl.dl-horizontal
+  dt
+    = Restaurant.human_attribute_name('address')
+  dd
+    = @restaurant.address
+
+dl.dl-horizontal
+  dt
+    = Restaurant.human_attribute_name('description')
+  dd
+    = simple_format(@restaurant.description)
+
+dl.dl-horizontal
+  dt
+    = Restaurant.human_attribute_name('phone_number')
+  dd
+    = @restaurant.phone_number
+
+dl.dl-horizontal
+  dt
+    = Restaurant.human_attribute_name('area')
+  dd
+    = @restaurant.area.try(:name)
+
+dl.dl-horizontal
+  dt
+    = Restaurant.human_attribute_name('price_sgd')
+  dd
+    = @restaurant.price.to_s.split("_").join(" - ")
+
+dl.dl-horizontal
+  dt
+    = Restaurant.human_attribute_name('known_for_list')
+  dd
+    = @restaurant.known_for_list.to_a.join(", ")
+
+dl.dl-horizontal
+  dt
+    = Restaurant.human_attribute_name('food_types')
+  dd
+    = @restaurant.food_types.pluck(:name).join(", ")
+
+dl.dl-horizontal
+  dt
+    = Restaurant.human_attribute_name('facilities')
+  dd
+    = @restaurant.facilities.pluck(:name).join(", ")
+
+dl.dl-horizontal
+  dt
+    = Restaurant.human_attribute_name('location')
+  dd
+    = @restaurant.location
+
+dl.dl-horizontal
+  dt
+    = Restaurant.human_attribute_name('photos_files')
+  dd
+    - @restaurant.photos.each do |photo|
+      .col-md-2.col-sm-3
+        .thumbnail
+          = attachment_image_tag(photo, :file, :fill, 150, 150, format: "jpg")
+          .caption
+            = link_to restaurant_photo_path(restaurant_id: @restaurant.id, id: photo.id), method: :delete, data: { confirm: "Are you sure?" },
+              class: "btn btn-sm btn-danger" do
+              span.glyphicon.glyphicon-trash
+              | Delete
+
+.col-sm-6
+  h3 Open Schedules
+  table.table
+    thead
+      tr
+        th Day
+        th Hour Open
+        th Hour Close
+    tbody
+      - @restaurant.open_schedules.each do |open_schedule|
+        tr
+          td
+            = open_schedule.day
+          td
+            = open_schedule.time_open.try(:strftime, "%H:%M")
+          td
+            = open_schedule.time_close.try(:strftime, "%H:%M")

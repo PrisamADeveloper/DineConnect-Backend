@@ -1,0 +1,74 @@
+.page-header
+  .btn-toolbar.pull-right
+    .btn-group
+      = link_to new_user_path, class: 'btn btn-primary' do
+        span.glyphicon.glyphicon-plus
+        = t :add_user
+  h1
+    = User.model_name.human
+    |&nbsp;&nbsp;
+    small
+      span.label.label-default
+        = User.count
+
+= render 'filter', url: users_path
+
+.table-responsive
+  table.table.tile.table-striped
+    thead
+      tr
+        th
+          = sort_link(@q, :last_name)
+        th
+          = sort_link(@q, :first_name)
+        th Email
+        th
+          = sort_link(@q, :created_at, "Member Since", default_order: :desc)
+        th.actions Actions
+    tbody
+    - @users.each do |user|
+      tr
+        td
+          = user.last_name
+        td
+          = user.first_name
+        td
+          = user.email
+        td
+          = I18n.l(user.created_at, format: :long)
+        td.actions
+          = link_to user, class: 'btn btn-info btn-xs' do
+            span.glyphicon.glyphicon-eye-open
+            | Show
+          |&nbsp;
+          = link_to edit_user_path(user), class: 'btn btn-warning btn-xs' do
+            span.glyphicon.glyphicon-edit
+            | Edit
+          |&nbsp;
+          - if !user.active?
+            = link_to activate_user_path(user), method: :patch,
+              data: { confirm: 'Activate this user?' },
+              class: 'btn btn-info btn-xs' do
+              span.glyphicon.glyphicon-edit
+              | Activate
+            |&nbsp;
+          - else
+            = link_to deactivate_user_path(user), method: :patch,
+              data: { confirm: 'Deactivate this user?' },
+              class: 'btn btn-danger btn-xs' do
+              span.glyphicon.glyphicon-edit
+              | Deactivate
+            |&nbsp;
+
+          = link_to reset_password_user_path(user),
+            class: 'btn btn-warning btn-xs' do
+            span.glyphicon.glyphicon-edit
+            = t('button.reset_password')
+          |&nbsp;
+          = link_to user, method: :delete, data: { confirm: 'Are you sure?' },
+            class: 'btn btn-danger btn-xs' do
+            span.glyphicon.glyphicon-trash
+            | Delete
+          |&nbsp;
+
+= paginate @users
